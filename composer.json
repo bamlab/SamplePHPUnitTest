@@ -10,5 +10,11 @@
             "name": "Nicolas Djambazian",
             "email": "nicolas@djambazian.fr"
         }
-    ]
+    ],
+	"autoload": {
+		"psr-4": {
+			"DemoTest\\": "src",
+			"Test\\": "tests"
+		}
+	}
 }

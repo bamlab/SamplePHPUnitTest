@@ -1,2 +1,4 @@
 <?php
-define('SYSPATH', '');
+
+$loader = require __DIR__.'/../vendor/autoload.php';
+return $loader;

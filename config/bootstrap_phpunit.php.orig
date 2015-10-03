@@ -1,0 +1,8 @@
+<?php
+<<<<<<< HEAD
+define('SYSPATH', '');
+=======
+
+$loader = require __DIR__.'/../vendor/autoload.php';
+return $loader;
+>>>>>>> d41d26a... Setup PSR-4 autoloader
