@@ -1,0 +1,14 @@
+{
+    "name": "bamlab/demo-tests",
+    "description": "Demo of phpunit test",
+    "require": {
+        "phpunit/phpunit": "^4.8"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nicolas Djambazian",
+            "email": "nicolas@djambazian.fr"
+        }
+    ]
+}
