@@ -3,9 +3,8 @@
 namespace DemoTest\Classes;
 
 use DemoTest\Classes\User;
-use \Handler_Customer;
-use \Auth;
-
+use DemoTest\Classes\AuthInterface;
+use DemoTest\Classes\HandlerCustomerInterface;
 /**
  * Classe HelperCustomer
  * @category Helper
@@ -18,56 +17,70 @@ class HelperCustomer {
     const TYPE_SUPERADMIN = 'SUPERADMIN';
 
     /**
-     * Get an User instance
-     * @return User
+     * The Auth service
+     * @var AuthInterface
      */
-    public static function getUserInstance()
+    private $auth;
+
+    /**
+     * The handler customer
+     * @var HandlerCustomerInterface
+     */
+    private $handlerCustomer;
+
+    /**
+     * Construct the class
+     * @param AuthInterface
+     * @param HandlerCustomerInterface
+     */
+    public function __construct(AuthInterface $auth, HandlerCustomerInterface $handlerCustomer)
     {
-        return Auth::instance()->get_user();
+        $this->auth = $auth;
+        $this->handlerCustomer = $handlerCustomer;
     }
 
     /**
      * @return boolean
      */
-    public static function is_internal()
+    public function is_internal()
     {
-        $customer = static::getUserInstance();
+        $customer = $this->auth->get_user();
         return ($customer->type == self::TYPE_INTERNAL || $customer->type == self::TYPE_SUPERADMIN);
     }
 
     /**
      * @return boolean
      */
-    public static function is_admin()
+    public function is_admin()
     {
-        $customer = static::getUserInstance();
+        $customer = $this->auth->get_user();
         return ($customer->type == self::TYPE_ADMIN || $customer->type == self::TYPE_SUPERADMIN);
     }
 
     /**
      * @return boolean
      */
-    public static function is_superadmin()
+    public function is_superadmin()
     {
-        $customer = static::getUserInstance();
+        $customer = $this->auth->get_user();
         return $customer->type == self::TYPE_SUPERADMIN;
     }
 
     /**
      * @return boolean
      */
-    public static function is_only_admin()
+    public function is_only_admin()
     {
-        $customer = static::getUserInstance();
+        $customer = $this->auth->get_user();
         return $customer->type == self::TYPE_ADMIN;
     }
 
     /**
      * @return boolean
      */
-    public static function has_parent()
+    public function has_parent()
     {
-        $customer = static::getUserInstance();
+        $customer = $this->auth->get_user();
         return $customer->parent_user_id !== NULL;
     }
 
@@ -75,18 +88,18 @@ class HelperCustomer {
      * @param  Model_Notice $notice
      * @return boolean
      */
-    public static function can_edit_notice(Model_Notice $notice)
+    public function can_edit_notice(Model_Notice $notice)
     {
-        return Helper_Customer::has_rights_on_user($notice->customer_id);
+        return $this->has_rights_on_user($notice->customer_id);
     }
 
     /**
      * @param  $customer_id
      * @return boolean
      */
-    public static function has_rights_on_user($customer_id)
+    public function has_rights_on_user($customer_id)
     {
-        $accessible_users = Helper_Customer::get_accessible_users();
+        $accessible_users = $this->get_accessible_users();
         $accessible_users_id = array();
         foreach ($accessible_users as $user) {
             $accessible_users_id[] = $user->id;
@@ -98,31 +111,31 @@ class HelperCustomer {
      * If superadmin, return all users
      * @return Model_User[]
      */
-    public static function get_accessible_users()
+    public function get_accessible_users()
     {
-        if (Helper_Customer::is_superadmin()) {
-            return Handler_Customer::get_all();
+        if ($this->is_superadmin()) {
+            return $this->handlerCustomer->get_all();
         }
-        if (Helper_Customer::is_only_admin()) {
-            $users = Handler_Customer::get_children(Auth::instance()->get_user()->id);
-            $users[] = static::getUserInstance();
+        if ($this->is_only_admin()) {
+            $users = $this->handlerCustomer->get_children($this->auth->get_user()->id);
+            $users[] = $this->auth->get_user();
             return $users;
         }
-        if (Helper_Customer::has_parent()) {
-            $users =  Handler_Customer::get_children(Auth::instance()->get_user()->parent_user_id);
-            $users[] = static::getUserInstance();
-            $users[] = Handler_Customer::get(Auth::instance()->get_user()->parent_user_id);
+        if ($this->has_parent()) {
+            $users =  this->handlerCustomer->get_children(this->auth->get_user()->parent_user_id);
+            $users[] = $this->auth->get_user();
+            $users[] = this->handlerCustomer->get($this->auth->get_user()->parent_user_id);
             return $users;
         }
-        return array(Auth::instance()->get_user());
+        return array($this->auth->get_user());
     }
 
     /**
      * @return array
      */
-    public static function get_editable_types()
+    public function get_editable_types()
     {
-        if (self::is_superadmin())
+        if ($this->is_superadmin())
         {
             return array(
                 self::TYPE_SUPERADMIN =>
@@ -133,7 +146,7 @@ class HelperCustomer {
                     UTF8::ucfirst(__(UTF8::strtolower(self::TYPE_INTERNAL))),
             );
         }
-        if (self::is_only_admin())
+        if ($this->is_only_admin())
         {
             return array(
                 self::TYPE_EXTERNAL =>
@@ -143,4 +156,3 @@ class HelperCustomer {
         return array();
     }
 }
-
