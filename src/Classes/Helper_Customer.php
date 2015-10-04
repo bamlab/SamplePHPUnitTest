@@ -1,5 +1,7 @@
 <?php defined('SYSPATH') or die('No direct access allowed.');
 
+require_once(__DIR__.'/User.php');
+
 /**
  * Classe Helper_Customer
  * @category Helper
@@ -12,11 +14,20 @@ class Helper_Customer {
     const TYPE_SUPERADMIN = 'SUPERADMIN';
 
     /**
+     * Get an User instance
+     * @return User
+     */
+    public static function getUserInstance()
+    {
+        return Auth::instance()->get_user();
+    }
+
+    /**
      * @return boolean
      */
     public static function is_internal()
     {
-        $customer = Auth::instance()->get_user();
+        $customer = static::getUserInstance();
         return ($customer->type == self::TYPE_INTERNAL || $customer->type == self::TYPE_SUPERADMIN);
     }
 
@@ -25,7 +36,7 @@ class Helper_Customer {
      */
     public static function is_admin()
     {
-        $customer = Auth::instance()->get_user();
+        $customer = static::getUserInstance();
         return ($customer->type == self::TYPE_ADMIN || $customer->type == self::TYPE_SUPERADMIN);
     }
 
@@ -34,7 +45,7 @@ class Helper_Customer {
      */
     public static function is_superadmin()
     {
-        $customer = Auth::instance()->get_user();
+        $customer = static::getUserInstance();
         return $customer->type == self::TYPE_SUPERADMIN;
     }
 
@@ -43,7 +54,7 @@ class Helper_Customer {
      */
     public static function is_only_admin()
     {
-        $customer = Auth::instance()->get_user();
+        $customer = static::getUserInstance();
         return $customer->type == self::TYPE_ADMIN;
     }
 
@@ -52,7 +63,7 @@ class Helper_Customer {
      */
     public static function has_parent()
     {
-        $customer = Auth::instance()->get_user();
+        $customer = static::getUserInstance();
         return $customer->parent_user_id !== NULL;
     }
 
@@ -90,12 +101,12 @@ class Helper_Customer {
         }
         if (Helper_Customer::is_only_admin()) {
             $users = Handler_Customer::get_children(Auth::instance()->get_user()->id);
-            $users[] = Auth::instance()->get_user();
+            $users[] = static::getUserInstance();
             return $users;
         }
         if (Helper_Customer::has_parent()) {
             $users =  Handler_Customer::get_children(Auth::instance()->get_user()->parent_user_id);
-            $users[] = Auth::instance()->get_user();
+            $users[] = static::getUserInstance();
             $users[] = Handler_Customer::get(Auth::instance()->get_user()->parent_user_id);
             return $users;
         }
