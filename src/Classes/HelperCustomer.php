@@ -1,12 +1,16 @@
-<?php defined('SYSPATH') or die('No direct access allowed.');
+<?php
 
-require_once(__DIR__.'/User.php');
+namespace DemoTest\Classes;
+
+use DemoTest\Classes\User;
+use \Handler_Customer;
+use \Auth;
 
 /**
- * Classe Helper_Customer
+ * Classe HelperCustomer
  * @category Helper
  */
-class Helper_Customer {
+class HelperCustomer {
 
     const TYPE_INTERNAL   = 'INTERNAL';
     const TYPE_EXTERNAL   = 'EXTERNAL';
@@ -139,3 +143,4 @@ class Helper_Customer {
         return array();
     }
 }
+
