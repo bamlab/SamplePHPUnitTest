@@ -122,9 +122,9 @@ class HelperCustomer {
             return $users;
         }
         if ($this->has_parent()) {
-            $users =  this->handlerCustomer->get_children(this->auth->get_user()->parent_user_id);
+            $users =  $this->handlerCustomer->get_children($this->auth->get_user()->parent_user_id);
             $users[] = $this->auth->get_user();
-            $users[] = this->handlerCustomer->get($this->auth->get_user()->parent_user_id);
+            $users[] = $this->handlerCustomer->get($this->auth->get_user()->parent_user_id);
             return $users;
         }
         return array($this->auth->get_user());

@@ -5,30 +5,27 @@ namespace Test;
 use DemoTest\Classes\HelperCustomer;
 use DemoTest\Classes\User;
 
-class HelperCustomerRedefined extends HelperCustomer
-{
-    private static $user = null;
-    public static function getUserInstance()
-    {
-        if (null === self::$user) {
-            self::$user = new User();
-        }
-
-        return self::$user;
-    }
-}
-
 class HelperCustomerTest  extends \PHPUnit_Framework_TestCase
 {
     public function testIsInternal()
     {
-        HelperCustomerRedefined::getUserInstance()->type = HelperCustomer::TYPE_ADMIN;
-        $this->assertFalse(HelperCustomerRedefined::is_internal());
+        $auth = $this->getMock('\DemoTest\Classes\AuthInterface');
+        $handler = $this->getMock('DemoTest\Classes\HandlerCustomerInterface');
 
-        HelperCustomerRedefined::getUserInstance()->type = HelperCustomer::TYPE_INTERNAL;
-        $this->assertTrue(HelperCustomerRedefined::is_internal());
+        $helper = new HelperCustomer($auth, $handler);
 
-        HelperCustomerRedefined::getUserInstance()->type = HelperCustomer::TYPE_SUPERADMIN;
-        $this->assertTrue(HelperCustomerRedefined::is_internal());
+        $user = new User();
+        $auth->expects(self::any())
+            ->method('get_user')
+            ->will($this->returnValue($user));
+
+        $user->type = HelperCustomer::TYPE_ADMIN;
+        $this->assertFalse($helper->is_internal());
+
+        $user->type = HelperCustomer::TYPE_INTERNAL;
+        $this->assertTrue($helper->is_internal());
+
+        $user->type = HelperCustomer::TYPE_SUPERADMIN;
+        $this->assertTrue($helper->is_internal());
     }
 }
